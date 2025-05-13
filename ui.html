@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: sans-serif; padding: 16px; width: 300px; }
+    input { width: 100%; padding: 8px; margin-bottom: 12px; }
+    .poster { width: 100%; margin-bottom: 12px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <input type="text" id="query" placeholder="Search for a movie..." />
+  <div id="results"></div>
+
+  <script>
+    const apiKey = 'aad5875c5978daef28ce49c00d9a0865';
+    const results = document.getElementById('results');
+    const queryInput = document.getElementById('query');
+
+    queryInput.addEventListener('input', async (e) => {
+      const query = e.target.value;
+      if (query.length < 3) return;
+
+      const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      results.innerHTML = '';
+      (data.results || []).forEach(movie => {
+        const img = document.createElement('img');
+        img.src = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+        img.className = 'poster';
+        img.onclick = () => parent.postMessage({ pluginMessage: { type: 'set-poster', url: img.src } }, '*');
+        results.appendChild(img);
+      });
+    });
+  </script>
+</body>
+</html>
